@@ -1,0 +1,15 @@
+{
+  "name": "new-kata",
+  "version": "0.0.1",
+  "engines": {
+    "node": "0.8.*"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "dependencies": {
+    "mocha": "latest",
+    "should": "latest",
+    "underscore": "~1.4.4"
+  }
+}
