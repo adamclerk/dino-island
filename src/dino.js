@@ -60,6 +60,7 @@ var _ = require('underscore');
 		dino.brain = brain;
 		dino.type = _.findWhere(dinoTypes, {name:type});
 		dino.is_alive = true;
+		
 
 		if(typeof(dino.brain) != 'function'){
 			throw new Error('Your dino dies of a generic abnormality: No brain found.');
@@ -68,6 +69,8 @@ var _ = require('underscore');
 		if(!dino.type){
 			throw new Error('Your dino dies of a generic abnormality: Not carnivore or herbivore.');
 		}
+
+		dino.calories = dino.type.calories;
 
 		if(dino.speed + dino.height > dino.type.max_combined){
 			throw new Error('Your dino died of a genetic abnormality: Too tall & too fast.');
