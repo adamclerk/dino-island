@@ -15,18 +15,6 @@ describe('dino', function() {
     	dino.speed.should.equal(5);
     });
 
-    it('should be able to look', function(){
-    	dino.look().should.equal('looking');
-    });
-
-    it('should be able to walk', function(){
-    	dino.walk().should.equal('walking');
-    });
-
-    it('should be able to eat', function(){
-    	dino.eat().should.equal('eating');
-    });
-
     it('should die if created with invalid height and speed', function(){
     	(function(){
     		new Dino('trex', 'carnivore', 5, 6, function(dino){});	
@@ -43,5 +31,5 @@ describe('dino', function() {
     	(function(){
     		new Dino('trex', 'herbivore', 5, 5);	
     	}).should.throw("Your dino dies of a generic abnormality: No brain found.");
-    })
+    });
 });

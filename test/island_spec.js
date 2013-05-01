@@ -6,7 +6,7 @@ describe('island', function() {
 	var i;
 
 	beforeEach(function(){
-        i = new Island('./islands/lost.small.island', 50, .20, .20);
+        i = new Island({island_path:'./islands/lost.small.island', vegitable_calories:50, percentage_plant: .20, point_decay_per_turn: .20});
 	});
 
     it('should be span a dino', function(){
@@ -21,7 +21,7 @@ describe('island', function() {
     });
 
     it('should be able to kill a lazy dino', function(){
-        var d = new Dino('trex', 'carnivore', 5, 5, function(dino){})
+        var d = new Dino('trex', 'carnivore', 5, 5, function(dino){return {action:'wait'}})
         i.add_dino(d);
         i.count('alive').should.equal(1);
         i.count('dead').should.equal(0);
@@ -47,5 +47,16 @@ describe('island', function() {
     it('should grow new vegitation', function(){
         i.grow();
         i.count('vegitation_calories').should.equal(1800);
+    });
+
+    it('should add a dinos to a random locations', function(){
+        for(var j = 0; j < 30; j++){
+            var d = new Dino('trex', 'carnivore', 5, 5, function(dino){return {action:'wait'}})
+            i.add_dino(d);
+        }
+        for(var j = 0; j < 29; j++){
+            i.dinos[j].location.point().should.not.equal(i.dinos[j+1].location.point());    
+        }
+        
     })
 });
