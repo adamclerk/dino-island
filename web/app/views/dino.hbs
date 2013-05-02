@@ -1,0 +1,45 @@
+
+<form class="form-horizontal">
+	<fieldset>
+		<legend>Create Your Dino</legend>
+	<div class="control-group">
+		<label class="control-label" for="name">Name</label>
+		<div class="controls">
+			<input type="text" id="name" placeholder="Name">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="name">Type</label>
+		<div class="controls">
+			<label class="radio">
+				<input type="radio" name="dinotype" id="herbiradio" value="herbivore" checked>
+				Heribivore
+			</label>
+			<label class="radio">
+				<input type="radio" name="dinotype" id="carnoradio" value="carnivore">
+				Carnivore
+			</label>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="brain">Brain</label>
+		<div class="controls">
+			<div id="editor" style='width:100%; height:500px;'>function brain(dino) {
+	return {action:'wait'};
+}</div>
+		</div>
+	</div>
+	<div class="control-group">
+		<div class="controls">
+			<button type="submit" class="btn">Create</button>
+		</div>
+	</div>
+	</fieldset>
+</form>
+
+<script src="http://rawgithub.com/ajaxorg/ace-builds/master/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+var editor = ace.edit("editor");
+editor.setTheme("ace/theme/monokai");
+editor.getSession().setMode("ace/mode/javascript");
+</script>
