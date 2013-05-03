@@ -50,63 +50,151 @@ var fs = require('fs');
             waiting_calories:5,
             walking_calories:5,
             eating_calories:5,
-            looking_calories:10
+            looking_calories:10,
+            dino_types:[
+                {
+                    name:'carnivore',
+                    calories:300,
+                    max_combined:10
+                }, 
+                {
+                    name:'herbivore',
+                    calories:500,
+                    max_combined:10
+                }
+            ]
         }
 
         o = _.extend(o, options);
 
         var island = {};
-
-        island.percentage_plant = o.percentage_plant;
-        island.point_decay_per_turn = o.point_decay_per_turn;
-        island.vegitable_calories = o.vegitable_calories;
+        island.options = o;
         island.map = gen_map(o.island_path);
         island.current_day = 1;
         island.dinos = [];
+        island.history = [];
+        island.started = false;
 
-        island.add_dino = function(dino){
+        island.spawn = function(dino){
+
+            var duplicate = _.findWhere(this.dinos, {name: dino.name});
+
+            if(duplicate){
+                dino.is_alive = false;
+                dino.death_reason = "Your dino dies of a generic abnormality: You've already spawned on this island."
+                return;
+            }
+
+            dino.type = _.findWhere(this.options.dino_types, {name: dino.type_name});
+            if(dino.type == undefined){
+                this.dinos.push(dino);
+                dino.is_alive = false;
+                dino.death_reason = "Your dino dies of a generic abnormality: This island doesn't support this type."
+                return;
+            }
+
+            if((dino.height + dino.speed) > dino.type.max_combined){
+                this.dinos.push(dino);
+                dino.is_alive = false;
+                dino.death_reason = "Your dino died of a genetic abnormality: Attributes Invalid."
+                return;
+            }
+
+            if(typeof(dino.brain) != 'function'){
+                this.dinos.push(dino);
+                dino.is_alive = false;
+                dino.death_reason = "Your dino died of a genetic abnormality: Brain not found."
+            }
+
             var randomland = this.randomland();
             while(randomland.dino_count > 0){
                 randomland = this.randomland();
             }
             randomland.dino_count++;
             dino.location = randomland;
+            dino.calories = dino.type.calories;
         	this.dinos.push(dino);
         };
 
-        island.next = function(){
-        	var sortedDinos = _.sortBy(this.dinos, function(dino){return dino.speed});
-        	var aliveDinos = _.where(sortedDinos, {is_alive:true});
-        	for(var i = 0; i < aliveDinos.length; i++){
-        		if(aliveDinos[i].calories < 0){
-                        aliveDinos[i].is_alive = false;
-                } else {
-                    var result = aliveDinos[i].brain();
+        island.start = function(){
+            this.started = true;
+            this.dinos = _.sortBy(this.dinos, function(dino){return dino.speed});
+        }
 
-            		if(result.action == 'wait'){
-                        aliveDinos[i].calories = aliveDinos[i].calories - 5
-                    } else if(result.action == 'walk'){
+        island.find = function(name){
+            return _.findWhere(this.dinos, {name: name});
+        }
 
+        island.next_day = function(){
+        	for(var i = 0; i < this.dinos.length; i++){
+                var dino = this.dinos[i];
+                if(dino.is_alive){
+            		if(dino.calories < 0){
+                            dino.is_alive = false;
+                    } else {
+                        var result = dino.brain();
+
+                        switch(result.action){
+                            case 'wait':
+                                dino.outcome = {};
+                                dino.calories = dino.calories - this.options.waiting_calories;
+                            break;
+                            case 'move':
+                                dino.outcome = {};
+                            break;
+                            case 'eat':
+                                dino.outcome = {}
+                            break;
+                            case 'look':
+                                dino.outcome = this.getradius(dino.location, dino.speed);
+                            break;
+                            default:
+                                dino.outcome = {};
+                                dino.calories = aliveDinos[i].calories - this.options.waiting_calories;
+                            break;
+                        }
                     }
                 }
         	}
+            this.history[this.current_day] = JSON.parse(JSON.stringify(this.dinos));
         	this.current_day++;
         };
 
         island.grow = function(){
-            if(this.percentage_plant < 0){
+            if(this.options.percentage_plant < 0){
                 return;
             }
 
-            var new_vegitation_count = Math.ceil(this.map.land.length * this.percentage_plant);
+            var new_vegitation_count = Math.ceil(this.map.land.length * this.options.percentage_plant);
 
             for(var i = 0; i < new_vegitation_count; i++){
                 var randomland = this.randomland();
-                randomland.vegitation_calories = randomland.vegitation_calories + this.vegitable_calories;
+                randomland.vegitation_calories = randomland.vegitation_calories + this.options.vegitable_calories;
             }
 
-            this.percentage_plant = this.percentage_plant - this.point_decay_per_turn;
+            this.options.percentage_plant = this.options.percentage_plant - this.options.point_decay_per_turn;
         };
+
+        island.getradius = function(location, radius){
+
+            var surroundings = [];
+            var x_min = location.x - radius;
+            var y_min = location.y - radius;
+            var x_max = location.x + radius;
+            var y_max = location.y + radius;
+            var x_index = 0;
+            var y_index = 0;
+
+            for(var x = x_min; x <= x_max; x++){   
+                surroundings[x_index] = [];
+                for(var y = y_min; y <= y_max; y++){
+                    surroundings[x_index][y_index] = new cord(x, y);
+                    y_index++;
+                }
+                x_index++;
+            }
+            return {surroundings: surroundings};
+        }
 
         island.count = function(count){
             switch(count){

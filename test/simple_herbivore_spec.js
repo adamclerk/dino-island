@@ -8,8 +8,5 @@ describe('simple herbivore', function() {
 
 	beforeEach(function(){
         i = new Island('./islands/lost.small.island', 50, .20, .20);
-        var d = new Dino('trex', 'herbivore', 5,5,function(dino){
-
-        });
 	});
 });

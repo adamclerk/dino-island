@@ -9,24 +9,32 @@ describe('island', function() {
         i = new Island({island_path:'./islands/lost.small.island', vegitable_calories:50, percentage_plant: .20, point_decay_per_turn: .20});
 	});
 
-    it('should be span a dino', function(){
+    it('should be spawn a dino', function(){
         var d = new Dino('trex', 'carnivore', 5,5,function(dino){})
-        i.add_dino(d);
+        i.spawn(d);
         i.count('alive').should.equal(1);
     });
 
+    it('should be able to find a dino', function(){
+        var d = new Dino('trex', 'carnivore', 5,5,function(dino){})
+        i.spawn(d);
+        var found = i.find('trex');
+        found.name.should.equal(d.name);
+        found.type.should.equal(d.type);
+    })
+
     it('should be go to next day', function(){
-        i.next();
+        i.next_day();
         i.current_day.should.equal(2);
     });
 
     it('should be able to kill a lazy dino', function(){
         var d = new Dino('trex', 'carnivore', 5, 5, function(dino){return {action:'wait'}})
-        i.add_dino(d);
+        i.spawn(d);
         i.count('alive').should.equal(1);
         i.count('dead').should.equal(0);
         for(var j = 0; j < 62; j++){
-            i.next();
+            i.next_day();
         }
         i.count('alive').should.equal(0);
         i.count('dead').should.equal(1);
@@ -51,8 +59,8 @@ describe('island', function() {
 
     it('should add a dinos to a random locations', function(){
         for(var j = 0; j < 30; j++){
-            var d = new Dino('trex', 'carnivore', 5, 5, function(dino){return {action:'wait'}})
-            i.add_dino(d);
+            var d = new Dino('trex' + j.toString(), 'carnivore', 5, 5, function(dino){return {action:'wait'}})
+            i.spawn(d);
         }
         for(var j = 0; j < 29; j++){
             i.dinos[j].location.point().should.not.equal(i.dinos[j+1].location.point());    
