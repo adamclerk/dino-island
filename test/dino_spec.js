@@ -72,5 +72,9 @@ describe('dino', function() {
         should.exist(d.outcome);
     });
 
-    it('should have a location from the start');    
+    it('should have a location from the start',function(){
+        island.spawn(dino);
+        var d = island.find('trex');
+        should.exist(d.location);
+    });    
 });
